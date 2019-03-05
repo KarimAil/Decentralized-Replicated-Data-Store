@@ -11,10 +11,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -22,18 +20,13 @@ import javax.json.Json;
 
 /**
  *
- * @author Karim
+ * @author Karim Ali
+ * @author Mohamed Samy
+ * @author Mohamed Ahmed
  */
 public class Peer {
 
     /**
-     * @param args the command line arguments
-     * @throws java.lang.Exception
-     */
-	
-	
-	
-	 /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
@@ -96,35 +89,30 @@ public class Peer {
             }
         communicate(Hostname,serverThread);
     }
+    
+    
+    
+    public void communicate(String Hostname,ServerThread serverThread) throws IOException{
 
-    
-    
-    
-    public void communicate(String username , ServerThread serverThread){
     	BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        try {
-        	
-            System.out.println("you can now communicate (e to Exit , c to Change)");
-            boolean flag = true;
-            while (flag) {                
-                String message = bufferedReader.readLine();
-                if(message.equals("e")){
-                    flag = false;
-                    break;
-                }else if (message.equals("c")){
-                    updateListenToPeer( username , serverThread);
-                }
-                else{
-                    StringWriter stringWriter = new StringWriter();
-                    Json.createWriter(stringWriter).writeObject(Json.createObjectBuilder()
-                                                   .add("username",username )
-                                                   .add("message",message).build());
+    	String message ;
+    	System.out.println("Enter your message to send or Exit to close ");
+    	
+    	while(true) {
+    		
+    	System.out.println("Enter your message to send: ");
+    	message = bufferedReader.readLine();
+    	
+    	if("exit".equals(message))
+    		break;
+    	
+        StringWriter stringWriter = new StringWriter();
+        Json.createWriter(stringWriter).writeObject(Json.createObjectBuilder()
+        		.add("username",Hostname )
+        		.add("message",message).build());
                     serverThread.sendMessage(stringWriter.toString());
-                }
-            }
+    	}
             System.exit(0);
-        } catch (Exception e) {
-        
-        }
+    
     }
 }
