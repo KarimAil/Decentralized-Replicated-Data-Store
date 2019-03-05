@@ -1,3 +1,5 @@
+
+
 //github copy [Decentralized-Replicated-Data-Store]
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -9,7 +11,13 @@ package peer;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+
 import javax.json.Json;
 
 /**
@@ -22,14 +30,48 @@ public class Peer {
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-    public static void main(String[] args)throws Exception{
-        BufferedReader  bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter user name and port number for this peer");
-        String[] setupvalues = bufferedReader.readLine().split(" ");
-        ServerThread serverThread = new ServerThread(setupvalues[1]);
-        serverThread.start();
-        new Peer().updateListenToPeer(bufferedReader , setupvalues[0] , serverThread);
+	
+	
+	
+	private String ip ;
+	private final int portNum = 8000;
+	protected static ArrayList <String> peersIPs = new ArrayList<>();
+
+	
+    public static void main(String[] args)throws Exception{	
+    	
+    	Peer peer = new Peer();
+    	peer.getIP();
+    	peer.setPeersIPs();
+   
+        //new Peer().updateListenToPeer(bufferedReader , setupvalues[0] , serverThread);
     }
+    
+    
+    
+    
+    public String getIP() throws UnknownHostException, SocketException { 
+		String ii ;
+    	try(final DatagramSocket socket = new DatagramSocket()){
+			  socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+			  ii=this.ip = socket.getLocalAddress().getHostAddress();
+			}
+		return ii;
+	}
+	
+	
+	public void setPeersIPs() {
+		
+		if(!peersIPs.contains(this.ip)) {
+			peersIPs.add(this.ip);
+		}
+		
+		/*for(int i=0 ; i<peersIPs.size() ; i++) {
+			System.out.println(peersIPs.get(i));
+		}*/
+	}
+
+    
     public void updateListenToPeer(BufferedReader bufferedReader , String username , ServerThread serverThread) throws Exception{
         System.out.println("Enter (space separeted) hostname:portnumber ");
         System.out.println("Peers to receive messages from (s to skip):");
@@ -49,6 +91,9 @@ public class Peer {
             }
         communicate(bufferedReader , username , serverThread);
     }
+    
+    
+    
     public void communicate(BufferedReader bufferedReader , String username , ServerThread serverThread){
         try {
             System.out.println("you can now communicate (e to Exit , c to Change)");
