@@ -14,10 +14,9 @@ import java.util.Set;
  */
 public class ServerThread extends Thread {
     private ServerSocket  serverSocket;
-    private Set<ServerThreadThread> serverThreadThreads;
+    private Set<ServerThreadThread> serverThreadThreads = new HashSet<ServerThreadThread>();
 
     public ServerThread(String portnum) throws IOException{
-        this.serverThreadThreads = new HashSet<ServerThreadThread>();
         this.serverSocket = new  ServerSocket(Integer.valueOf(portnum));
     }
     @Override
