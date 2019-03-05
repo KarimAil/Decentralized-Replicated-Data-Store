@@ -47,6 +47,7 @@ public class Peer {
                     else System.out.println("Invalid input. skipping to next step.");
                 }
             }
+        communicate(bufferedReader , username , serverThread);
     }
     public void communicate(BufferedReader bufferedReader , String username , ServerThread serverThread){
         try {
