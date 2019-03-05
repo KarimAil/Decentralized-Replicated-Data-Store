@@ -9,6 +9,7 @@
 package peer;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.DatagramSocket;
@@ -33,33 +34,49 @@ public class Peer {
 	
 	
 	
+	 /**
+     * @param args the command line arguments
+     * @throws java.lang.Exception
+     */
 	private String ip ;
-	private final int portNum = 8000;
+	private String hostname = "Anonymous ";
+	private final int portNum = 8001;
 	protected static ArrayList <String> peersIPs = new ArrayList<>();
 
 	
-    public static void main(String[] args)throws Exception{	
-    	
+    public static void main(String[] args)throws Exception{
+      
     	Peer peer = new Peer();
-    	peer.getIP();
+
+    	ServerThread serverThread = new ServerThread(peer.portNum);
+        serverThread.start();
+    	    	peer.getIP_Name();
     	peer.setPeersIPs();
    
-        //new Peer().updateListenToPeer(bufferedReader , setupvalues[0] , serverThread);
+       peer.updateListenToPeer(peer.hostname,serverThread);
     }
     
-    
-    
-    
-    public String getIP() throws UnknownHostException, SocketException { 
-		String ii ;
-    	try(final DatagramSocket socket = new DatagramSocket()){
-			  socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-			  ii=this.ip = socket.getLocalAddress().getHostAddress();
-			}
-		return ii;
+   
+    //GETTING THE IP OF THIS PEER
+    public String getIP_Name() throws UnknownHostException { 
+    	
+		try
+    	{
+    	    InetAddress addr;
+    	    addr = InetAddress.getLocalHost();
+    	    this.hostname = addr.getHostName();
+    	    this.ip=addr.getHostAddress();
+    	}
+    	catch (UnknownHostException ex)
+    	{
+    	    System.out.println("Hostname or IP can not be resolved");
+    	}
+    	
+		return this.ip+"  "+this.hostname;
 	}
+   
 	
-	
+	//SET PEER IP IN THE STATIC ARRAY 
 	public void setPeersIPs() {
 		
 		if(!peersIPs.contains(this.ip)) {
@@ -70,32 +87,24 @@ public class Peer {
 			System.out.println(peersIPs.get(i));
 		}*/
 	}
+    
+    public void updateListenToPeer(String Hostname ,ServerThread serverThread) throws UnknownHostException, IOException {
+ 
+            for (int i = 0; i < peersIPs.size(); i++) {
+                Socket socket = null;
+                socket = new Socket(peersIPs.get(i), portNum);
+                new PeerThread(socket).start();
+            }
+        communicate(Hostname,serverThread);
+    }
 
     
-    public void updateListenToPeer(BufferedReader bufferedReader , String username , ServerThread serverThread) throws Exception{
-        System.out.println("Enter (space separeted) hostname:portnumber ");
-        System.out.println("Peers to receive messages from (s to skip):");
-        String input = bufferedReader.readLine();
-        String[] inputValues = input.split(" ");
-        if(!input.equals("s"))
-            for (int i = 0; i < inputValues.length; i++) {
-                String[] address = inputValues[i].split(":");
-                Socket socket = null;
-                try {
-                    socket = new Socket(address[0] , Integer.valueOf(address[1]));
-                    new PeerThread(socket).start();
-                } catch (Exception e) {
-                    if (socket != null) socket.close();
-                    else System.out.println("Invalid input. skipping to next step.");
-                }
-            }
-        communicate(bufferedReader , username , serverThread);
-    }
     
     
-    
-    public void communicate(BufferedReader bufferedReader , String username , ServerThread serverThread){
+    public void communicate(String username , ServerThread serverThread){
+    	BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         try {
+        	
             System.out.println("you can now communicate (e to Exit , c to Change)");
             boolean flag = true;
             while (flag) {                
@@ -104,7 +113,7 @@ public class Peer {
                     flag = false;
                     break;
                 }else if (message.equals("c")){
-                    updateListenToPeer(bufferedReader , username , serverThread);
+                    updateListenToPeer( username , serverThread);
                 }
                 else{
                     StringWriter stringWriter = new StringWriter();
