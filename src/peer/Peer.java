@@ -1,5 +1,4 @@
-
-//github copy [Decentralized-Replicated-Data-Store]
+//github copy [Decentralized-Replicated-Data-Store].....git 
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,111 +7,80 @@
 package peer;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.rmi.UnknownHostException;
+import java.sql.ResultSet;
 import java.util.ArrayList;
-
 import javax.json.Json;
 
 /**
  *
- * @author Karim Ali
- * @author Mohamed Samy
- * @author Mohamed Ahmed
+ * @author Karim
  */
 public class Peer {
-
+    private static ArrayList<String> resalt = new ArrayList<>();
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-	private String ip ;
-	private String hostname = "Anonymous ";
-	private final int portNum = 8001;
-	protected static ArrayList <String> peersIPs = new ArrayList<>();
-
-	
-    public static void main(String[] args)throws Exception{
-      
-    	Peer peer = new Peer();
-
-    	ServerThread serverThread = new ServerThread(peer.portNum);
+    public static void main(String[] args) throws Exception {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Enter user name and port number for this peer");
+        String[] setupvalues = bufferedReader.readLine().split(" ");
+        resalt.add(getIP()+":"+setupvalues[1]);
+        ServerThread serverThread = new ServerThread(setupvalues[1]);
         serverThread.start();
-    	    	peer.getIP_Name();
-    	peer.setPeersIPs();
-   
-       peer.updateListenToPeer(peer.hostname,serverThread);
+        new Peer().updateListenToPeer(bufferedReader, setupvalues[0], serverThread , setupvalues[1] , true );
     }
-    
-   
-    //GETTING THE IP OF THIS PEER
-    public String getIP_Name() throws UnknownHostException { 
-    	
-		try
-    	{
-    	    InetAddress addr;
-    	    addr = InetAddress.getLocalHost();
-    	    this.hostname = addr.getHostName();
-    	    this.ip=addr.getHostAddress();
-    	}
-    	catch (UnknownHostException ex)
-    	{
-    	    System.out.println("Hostname or IP can not be resolved");
-    	}
-    	
-		return this.ip+"  "+this.hostname;
-	}
-   
-	
-	//SET PEER IP IN THE STATIC ARRAY 
-	public void setPeersIPs() {
-		
-		if(!peersIPs.contains(this.ip)) {
-			peersIPs.add(this.ip);
-		}
-		
-		/*for(int i=0 ; i<peersIPs.size() ; i++) {
-			System.out.println(peersIPs.get(i));
-		}*/
-	}
-    
-    public void updateListenToPeer(String Hostname ,ServerThread serverThread) throws UnknownHostException, IOException {
- 
-            for (int i = 0; i < peersIPs.size(); i++) {
-                Socket socket = null;
-                socket = new Socket(peersIPs.get(i), portNum);
-                new PeerThread(socket).start();
-            }
-        communicate(Hostname,serverThread);
+    public static String getIP() throws UnknownHostException, java.net.UnknownHostException {
+        InetAddress addr = InetAddress.getLocalHost();
+        String ip = addr.getHostAddress();
+        return ip;
     }
-    
-    
-    
-    public void communicate(String Hostname,ServerThread serverThread) throws IOException{
 
-    	BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    	String message ;
-    	System.out.println("Enter your message to send or Exit to close ");
-    	
-    	while(true) {
-    		
-    	System.out.println("Enter your message to send: ");
-    	message = bufferedReader.readLine();
-    	
-    	if("exit".equals(message))
-    		break;
-    	
-        StringWriter stringWriter = new StringWriter();
-        Json.createWriter(stringWriter).writeObject(Json.createObjectBuilder()
-        		.add("username",Hostname )
-        		.add("message",message).build());
-                    serverThread.sendMessage(stringWriter.toString());
-    	}
-            System.exit(0);
-    
+    public void updateListenToPeer(BufferedReader bufferedReader, String username, ServerThread serverThread , String port , boolean f) throws Exception {
+        ArrayList<String> reslt = new sqlConnection().getIps(getIP()+":"+port , f);
+        for(int i = 0 ; i < reslt.size(); i++) {
+            if(resalt.contains(reslt.get(i))) continue;
+            resalt.add(reslt.get(i));
+            String[] address = reslt.get(i).split(":");
+            Socket socket = null;
+            try {
+                socket = new Socket(address[0], Integer.valueOf(address[1]));
+                new PeerThread(socket).start();
+            } catch (Exception e) {
+                if (socket != null) {
+                    socket.close();
+                }
+            }
+        }
+        System.out.println("you can now communicate (e to Exit)");
+        while (true) { 
+            if(new sqlConnection().uptodate(getIP()+":"+port) == 1){
+                updateListenToPeer(bufferedReader, username , serverThread , port, false );
+            }
+            String message = bufferedReader.readLine();
+            if (message.equals("e")) {
+                break;
+            }
+            communicate(bufferedReader, username, serverThread, message);
+        }
+        System.exit(0);
+    }
+
+    public void communicate(BufferedReader bufferedReader, String username, ServerThread serverThread, String message) {
+        try {
+
+            StringWriter stringWriter = new StringWriter();
+            Json.createWriter(stringWriter).writeObject(Json.createObjectBuilder()
+                    .add("username", username)
+                    .add("message", message).build());
+            serverThread.sendMessage(stringWriter.toString());
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 }
