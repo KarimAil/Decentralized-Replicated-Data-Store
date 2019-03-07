@@ -16,8 +16,8 @@ public class ServerThread extends Thread {
     private ServerSocket  serverSocket;
     private Set<ServerThreadThread> serverThreadThreads = new HashSet<ServerThreadThread>();
 
-    public ServerThread(int portnum) throws IOException{
-        this.serverSocket = new  ServerSocket(portnum);
+    public ServerThread(String portnum) throws IOException{
+        this.serverSocket = new  ServerSocket(Integer.valueOf(portnum));
     }
     @Override
     public void run(){
