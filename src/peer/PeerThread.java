@@ -11,30 +11,32 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import javax.json.Json;
 import javax.json.JsonObject;
+
 /**
  *
  * @author Karim
  */
 public class PeerThread extends Thread {
-    private BufferedReader  bufferedReader;
 
-    public PeerThread(Socket socket) throws IOException{
+    private BufferedReader bufferedReader;
+
+    public PeerThread(Socket socket) throws IOException {
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
-    
+
     @Override
-    public void run(){
+    public void run() {
         boolean flag = true;
         while (flag) {
             try {
                 JsonObject jsonObject = Json.createReader(bufferedReader).readObject();
-                if(jsonObject.containsKey("username"))
-                    System.out.println("["+jsonObject.getString("username")+"]:"+jsonObject.getString("message"));
+                if (jsonObject.containsKey("username")) {
+                    System.out.println("[" + jsonObject.getString("username") + "]:" + jsonObject.getString("message"));
+                }
             } catch (Exception e) {
                 flag = false;
                 interrupt();
             }
         }
     }
-    
 }
