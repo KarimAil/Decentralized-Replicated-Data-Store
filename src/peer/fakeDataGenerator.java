@@ -8,7 +8,7 @@ public class fakeDataGenerator extends Thread
     @Override
     public void run()
     {
-        //QueueingModule q = new QueueingModule();
+        QueueingModule q = new QueueingModule();
         generateMessage();
         while(true)
         {
@@ -17,7 +17,7 @@ public class fakeDataGenerator extends Thread
                 Thread.sleep((int)(Math.random() * 5555));
                 String name = messages[ (int)(Math.random() * 31) ];
                 System.out.println(name);
-                //q.add(name);
+                q.add(name);
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
