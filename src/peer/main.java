@@ -17,7 +17,7 @@ public static void main(String[] args) throws Exception {
         
         Peer.setupvalues = bufferedReader.readLine().split(" ");
          
-         peer.addinresalt(peer.getIP()+":"+  Peer.setupvalues );
+         peer.addinresalt(peer.getIP()+":"+  Peer.setupvalues[1] );
         
          //peer.setPort(port);
          Peer.serverThread = new ServerThread(  Peer.setupvalues[1] );
