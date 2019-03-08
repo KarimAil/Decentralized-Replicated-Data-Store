@@ -10,7 +10,7 @@ public class fakeDataGenerator  extends Thread{
 	private QueueingModule queue = new QueueingModule();
 	private int counter = 0;
 	Peer p ;
-	private String message;
+	private static String message;
 	
 	public fakeDataGenerator() {
 		// TODO Auto-generated constructor stub
@@ -40,9 +40,9 @@ public class fakeDataGenerator  extends Thread{
            		
            		if(counter == 31 ) { queue.start();queue.join(); counter=0;}
                 
-                System.out.println("---------------  "+counter);
+                //System.out.println("---------------  "+counter);
                 
-                Thread.sleep((int)(Math.random() * 2000));
+                Thread.sleep((int)(Math.random() * 20000));
                
             }
             catch (InterruptedException | IOException e) {
@@ -52,7 +52,7 @@ public class fakeDataGenerator  extends Thread{
     }
     
     
-    public String copydata () {
+    public static String copydata () {
 		
     	
     	return message;

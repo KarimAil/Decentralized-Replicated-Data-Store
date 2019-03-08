@@ -14,6 +14,8 @@ import java.net.Socket;
 import java.rmi.UnknownHostException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import javax.json.Json;
 
 /**
@@ -28,12 +30,12 @@ public class Peer extends Thread {
 	
 	
 	private static ArrayList<String> resalt = new ArrayList<>();
-    private static fakeDataGenerator Gen = new fakeDataGenerator();
-    public static String message= "";
+   
+    private static String message= "";
     
 
     public static ServerThread serverThread ;
-    public static String setupvalues;
+    public static String []setupvalues;
     
    
     
@@ -60,7 +62,8 @@ public class Peer extends Thread {
     	return hostname;
     }
     
-    public static void updateListenToPeer( ServerThread serverThread , String port , boolean f) throws Exception {
+    public static  void updateListenToPeer( ServerThread serverThread ,String username, String port , boolean f) throws Exception {
+    	 fakeDataGenerator Gen = new fakeDataGenerator();
         ArrayList<String> reslt = new sqlConnection().getIps(getIP()+":"+port , f);
         for(int i = 0 ; i < reslt.size(); i++) {
             if(resalt.contains(reslt.get(i))) continue;
@@ -84,20 +87,19 @@ public class Peer extends Thread {
     
     public static void ss() throws Exception {
     	
-             if(new sqlConnection().uptodate(getIP()+":"+setupvalues) == 1){
-                 updateListenToPeer( serverThread , setupvalues, false );
+    	    if(new sqlConnection().uptodate(getIP()+":"+Peer.setupvalues[1]) == 1){
+                 updateListenToPeer( serverThread , Peer.setupvalues[0],Peer.setupvalues[1], false );
              }
-             //System.out.println("*************");
         
     	 new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				
-				Peer.message = Gen.copydata();
-				System.out.println(Peer.message);
+				Peer.message = fakeDataGenerator.copydata();
+				//System.out.println(Peer.message);
 				 try {
-					communicate(serverThread, Peer.message);
+					communicate(serverThread, Peer.message  );
 				} catch (java.net.UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -108,8 +110,9 @@ public class Peer extends Thread {
     }
     
     
-    public static void communicate( ServerThread serverThread, String message) throws java.net.UnknownHostException {
-    	 String username = getPCname();
+    public static void communicate( ServerThread serverThread, String message ) throws java.net.UnknownHostException {
+    	
+    	String username = getPCname()+" - "+Peer.setupvalues[0];
         try {
 
             StringWriter stringWriter = new StringWriter();
