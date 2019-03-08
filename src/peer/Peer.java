@@ -20,28 +20,47 @@ import javax.json.Json;
  *
  * @author Karim
  */
-public class Peer {
-    private static ArrayList<String> resalt = new ArrayList<>();
-    /**
+public class Peer extends Thread {
+	/**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-    public static void main(String[] args) throws Exception {
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Enter user name and port number for this peer");
-        String[] setupvalues = bufferedReader.readLine().split(" ");
-        resalt.add(getIP()+":"+setupvalues[1]);
-        ServerThread serverThread = new ServerThread(setupvalues[1]);
-        serverThread.start();
-        new Peer().updateListenToPeer(bufferedReader, setupvalues[0], serverThread , setupvalues[1] , true );
-    }
+	
+	
+	private static ArrayList<String> resalt = new ArrayList<>();
+    private static fakeDataGenerator Gen = new fakeDataGenerator();
+    public static String message= "";
+    
+
+    public static ServerThread serverThread ;
+    public static String setupvalues;
+    
+   
+    
+    public void addinresalt(String string) {
+		// TODO Auto-generated method stub
+    	resalt.add(string);
+	}
+    
+    
     public static String getIP() throws UnknownHostException, java.net.UnknownHostException {
         InetAddress addr = InetAddress.getLocalHost();
         String ip = addr.getHostAddress();
         return ip;
     }
-
-    public void updateListenToPeer(BufferedReader bufferedReader, String username, ServerThread serverThread , String port , boolean f) throws Exception {
+    
+    private static  String getPCname () throws java.net.UnknownHostException {
+    	String hostname = "Anonymous";
+    	
+    	    InetAddress addr;
+    	    addr = InetAddress.getLocalHost();
+    	    hostname = addr.getHostName();
+    	
+    
+    	return hostname;
+    }
+    
+    public static void updateListenToPeer( ServerThread serverThread , String port , boolean f) throws Exception {
         ArrayList<String> reslt = new sqlConnection().getIps(getIP()+":"+port , f);
         for(int i = 0 ; i < reslt.size(); i++) {
             if(resalt.contains(reslt.get(i))) continue;
@@ -58,20 +77,39 @@ public class Peer {
             }
         }
         System.out.println("you can now communicate (e to Exit)");
-        while (true) { 
-            if(new sqlConnection().uptodate(getIP()+":"+port) == 1){
-                updateListenToPeer(bufferedReader, username , serverThread , port, false );
-            }
-            String message = bufferedReader.readLine();
-            if (message.equals("e")) {
-                break;
-            }
-            communicate(bufferedReader, username, serverThread, message);
-        }
-        System.exit(0);
+        Gen.start();
+   
     }
-
-    public void communicate(BufferedReader bufferedReader, String username, ServerThread serverThread, String message) {
+    
+    
+    public static void ss() throws Exception {
+    	
+             if(new sqlConnection().uptodate(getIP()+":"+setupvalues) == 1){
+                 updateListenToPeer( serverThread , setupvalues, false );
+             }
+             //System.out.println("*************");
+        
+    	 new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				Peer.message = Gen.copydata();
+				System.out.println(Peer.message);
+				 try {
+					communicate(serverThread, Peer.message);
+				} catch (java.net.UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}) .start();
+    	
+    }
+    
+    
+    public static void communicate( ServerThread serverThread, String message) throws java.net.UnknownHostException {
+    	 String username = getPCname();
         try {
 
             StringWriter stringWriter = new StringWriter();
@@ -83,4 +121,8 @@ public class Peer {
             System.out.println(e);
         }
     }
+    
+    
+
+	
 }

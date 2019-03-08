@@ -2,44 +2,64 @@ package peer;
 
 import java.io.*;
 
+
 public class fakeDataGenerator  extends Thread{
 
-
-    public static String [] messages = new String[33];
-    QueueingModule queue = new QueueingModule();
-    int counter = 0;
-
+	
+	public static String [] messages = new String[33];
+	private QueueingModule queue = new QueueingModule();
+	private int counter = 0;
+	Peer p ;
+	private String message;
+	
+	public fakeDataGenerator() {
+		// TODO Auto-generated constructor stub
+	
+	}
+	
     @Override
     public void run()
     {
-
+    	
         generateMessage();
         while(true)
         {
             try
             {
-                Thread.sleep((int)(Math.random() * 5000));
+            	message =  messages[ /*(int)(Math.random() * 31) */ counter] ; //GETTING RANDOM DATA TO STORE IN THE QUEUE
+            	
+                
 
-                queue.getFromDataGen( messages[ (int)(Math.random() * 31) ]);counter++; //GETTING RANDOM DATA TO STORE IN THE QUEUE
-
-                /*
-                 *
-                 *
-                 *SENDING TO THE NETWORK
-                 *
-                 *
-                 */
-
-                if(counter == 31 ) { queue.start();queue.join(); counter=0;}
-
+           		queue.getFromDataGen(message);counter++; 
+           		try {
+					Peer.ss();
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+           		
+           		if(counter == 31 ) { queue.start();queue.join(); counter=0;}
+                
                 System.out.println("---------------  "+counter);
-
+                
+                Thread.sleep((int)(Math.random() * 2000));
+               
             }
             catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
         }
     }
+    
+    
+    public String copydata () {
+		
+    	
+    	return message;
+    	
+    }
+    
+    
     private void generateMessage()
     {
         try {
@@ -55,17 +75,14 @@ public class fakeDataGenerator  extends Thread{
                 else
                 {
                     messages[t++]=temp+".";
-
+                    
                     temp="";
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*for (int i=0;i<32;i++) {
-           System.out.println(messages[i]);
-
-        }*/
+      
     }
     private static String takeInput() throws Exception  // Take input from file
     {
@@ -81,6 +98,17 @@ public class fakeDataGenerator  extends Thread{
 
         return data;
     }
-
+    
+    public String send() {
+		return "asd";
+    	
+    }
+   
+	/*public static void main(String[] args) throws Exception {	
+		// TODO Auto-generated method stub
+		fakeDataGenerator g = new fakeDataGenerator();
+        g.start();
+}*/
+	
 }
 
