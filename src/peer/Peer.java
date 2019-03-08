@@ -79,7 +79,7 @@ public class Peer extends Thread {
                 }
             }
         }
-        System.out.println("you can now communicate (e to Exit)");
+        //System.out.println("you can now communicate (e to Exit)");
         Gen.start();
    
     }

@@ -20,7 +20,7 @@ public class PeerThread extends Thread {
 
 	private QueueingModule Q = new QueueingModule();
     private BufferedReader bufferedReader;
-    String recievedData ;
+    private String recievedData ;
 
     public PeerThread(Socket socket) throws IOException {
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -33,7 +33,7 @@ public class PeerThread extends Thread {
             try {
                 JsonObject jsonObject = Json.createReader(bufferedReader).readObject();
                 if (jsonObject.containsKey("username")) {
-                	
+            
                 	recievedData = "[" + jsonObject.getString("username") + "]:" + jsonObject.getString("message");
                 	Q.getFromPeers(recievedData);
                 	System.out.println(recievedData);
