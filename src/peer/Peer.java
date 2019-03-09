@@ -22,7 +22,7 @@ import javax.json.Json;
  *
  * @author Karim
  */
-public class Peer extends Thread {
+public class Peer {
 	/**
      * @param args the command line arguments
      * @throws java.lang.Exception
@@ -85,30 +85,14 @@ public class Peer extends Thread {
     }
     
     
-    public static void ss() throws Exception {
+    public static void ss(String m) throws Exception {
     	
     	    if(new sqlConnection().uptodate(getIP()+":"+Peer.setupvalues[1]) == 1){
                  updateListenToPeer( serverThread , Peer.setupvalues[0],Peer.setupvalues[1], false );
              }
-        
-    	 new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				Peer.message = fakeDataGenerator.copydata();
-				//System.out.println(Peer.message);
-				 try {
-					communicate(serverThread, Peer.message  );
-				} catch (java.net.UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}) .start();
-    	
+    	    message = m;// fakeDataGenerator.copydata();
+    	    communicate(serverThread, message);
     }
-    
     
     public static void communicate( ServerThread serverThread, String message ) throws java.net.UnknownHostException {
     	
@@ -118,7 +102,8 @@ public class Peer extends Thread {
             StringWriter stringWriter = new StringWriter();
             Json.createWriter(stringWriter).writeObject(Json.createObjectBuilder()
                     .add("username", username)
-                    .add("message", message).build());
+                    .add("message", message)
+                    .build());
             serverThread.sendMessage(stringWriter.toString());
         } catch (Exception e) {
             System.out.println(e);
