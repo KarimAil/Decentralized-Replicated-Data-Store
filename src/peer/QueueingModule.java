@@ -15,38 +15,23 @@ public class QueueingModule extends Thread{
 	
 	 
 	private static Queue<String> q = new ArrayDeque<>();
-	private static Queue<String> qq = new ArrayDeque<>();
 	
 	 public QueueingModule(){}
 	   
-	 private void addToQueue(String Data)
+	 public void addToQueue(String Data)
     {
         q.add(Data);
+        	
     }
-	 private void addToQueuee(String Data)
-	    {
-			qq.add(Data);
-	    }
 	    
 	 @Override
 	 public void run() {
 		 try {
 			SaveToFile();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	 }
-	 
-	 
-	 
-	    public void getFromDataGen(String Data) throws IOException {
-	    	addToQueue(Data);
-	    }
-	    
-	    public void getFromPeers(String Data) throws IOException {
-	    	addToQueuee(Data);
-	    }
 	    
 	    
 	    public void SaveToFile() throws IOException {
@@ -59,17 +44,7 @@ public class QueueingModule extends Thread{
 		    }
 	    	pw.close();
 	    }
-	    
-	    public void SaveToFilee() throws IOException {
-	    	
-	    	int size = qq.size();
-	    	PrintWriter pw = new PrintWriter(new FileOutputStream (new File("DB.txt"),true )); 
-	    	for(int i = 0 ; i<size ; i++) {
 
-		    	pw.append(qq.poll()+"|");
-		    }
-	    	pw.close();
-	    }
 	    
 	    public void print () {
 	    	int size = q.size();
@@ -78,19 +53,10 @@ public class QueueingModule extends Thread{
 	    	}
 	    }
 	    
-	    
-	   
-	    
-	    /*public static void main(String[] args) throws IOException
-	    {
-	        QueueingModule qq = new QueueingModule();
-	        qq.addToQueue("A");
-	        qq.addToQueue("B");
-	        qq.addToQueue("C");
-	        qq.addToQueue("D");
-	        qq.addToQueue("E");
-	        
-	        
-	        qq.SaveToFile();
-	    }*/
+	    public boolean getStatus () {
+	    	if(q.size() > 30) return false;
+	    	
+	    	else return true;
+	    	
+	    }
 }

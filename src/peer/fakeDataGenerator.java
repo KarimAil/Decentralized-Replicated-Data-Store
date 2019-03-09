@@ -12,52 +12,44 @@ public class fakeDataGenerator  extends Thread{
 	Peer p ;
 	private static String message;
 	
-	public fakeDataGenerator() {
-		// TODO Auto-generated constructor stub
-	
-	}
+	public fakeDataGenerator() {}
 	
     @Override
     public void run()
     {
-    	
+    	boolean flag ,check;
         generateMessage();
         while(true)
         {
             try
             {
-            	message =  messages[ /*(int)(Math.random() * 31) */ counter] ; //GETTING RANDOM DATA TO STORE IN THE QUEUE
+            	message =  messages[ (int)(Math.random() * 31)  ] ; //GETTING RANDOM DATA TO STORE IN THE QUEUE
             	
-                
-
-           		queue.getFromDataGen(message);counter++; 
+           		 queue.addToQueue(message); //counter++; 
+           		 flag = queue.getStatus();
+           	
            		try {
-					Peer.ss();
+					Peer.ss(message); 
 				} catch (Exception e) {
 					
 					e.printStackTrace();
 				}
            		
-           		if(counter == 31 ) { queue.start();queue.join(); counter=0;}
-                
-                //System.out.println("---------------  "+counter);
-                
+           		if(flag == false ) { queue.start();queue.join(); flag = true; counter=0;}
+                                
                 Thread.sleep((int)(Math.random() * 20000));
                
             }
-            catch (InterruptedException | IOException e) {
+            catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
     
     
-    public static String copydata () {
-		
-    	
-    	return message;
-    	
-    }
+    /*public static String copydata () {
+		return message;
+   }*/
     
     
     private void generateMessage()
@@ -98,17 +90,5 @@ public class fakeDataGenerator  extends Thread{
 
         return data;
     }
-    
-    public String send() {
-		return "asd";
-    	
-    }
-   
-	/*public static void main(String[] args) throws Exception {	
-		// TODO Auto-generated method stub
-		fakeDataGenerator g = new fakeDataGenerator();
-        g.start();
-}*/
-	
 }
 
