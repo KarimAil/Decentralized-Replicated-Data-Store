@@ -20,6 +20,8 @@ class sqlConnection {
     private Connection con;
     private Statement stat;
 
+    
+    
     public sqlConnection(){
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -29,6 +31,9 @@ class sqlConnection {
             System.out.println("Error: " + ex);
         }
     }
+    
+    
+    
     public ArrayList<String> getIps(String col , boolean flag) throws SQLException {
         ResultSet rs = null;
         ArrayList<String> reslt = new ArrayList<String>();
@@ -51,7 +56,11 @@ class sqlConnection {
                 System.out.println(ex);
             }
         }
-        con.close();
+        try {}finally {
+        
+        	con.close();
+        }
+        
         return reslt;
     }
 
@@ -60,14 +69,18 @@ class sqlConnection {
         try {
             String query = "select * from IPs where Col='"+col+"'";
             ResultSet rs = stat.executeQuery(query);
-            rs.next();
-            bol = Integer.valueOf(rs.getString("new"));
+            while (rs.next())
+            	bol = Integer.valueOf(rs.getString("new"));
             if (bol == 1)
                 stat.executeUpdate("UPDATE IPs SET new='" + "0" +"' WHERE Col ='"+col+"' ");
         } catch (Exception ex) {
             System.out.println(ex);
         }
-        con.close();
+        
+        
+        finally {
+        	con.close();	
+        }
         return bol ;
     }
 }

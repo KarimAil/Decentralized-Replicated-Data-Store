@@ -7,17 +7,18 @@ public class fakeDataGenerator  extends Thread{
 
 	
 	public static String [] messages = new String[33];
-	private QueueingModule queue = new QueueingModule();
+	private QueueingModule queue;
 	private int counter = 0;
 	Peer p ;
 	private static String message;
 	
-	public fakeDataGenerator() {}
+	public fakeDataGenerator(QueueingModule queue2) {
+		queue = queue2;
+	}
 	
     @Override
     public void run()
     {
-    	boolean flag ,check;
         generateMessage();
         while(true)
         {
@@ -25,9 +26,7 @@ public class fakeDataGenerator  extends Thread{
             {
             	message =  messages[ (int)(Math.random() * 31)  ] ; //GETTING RANDOM DATA TO STORE IN THE QUEUE
             	
-           		 queue.addToQueue(message); //counter++; 
-           		 flag = queue.getStatus();
-           	
+           		 queue.addToQueue(message);
            		try {
 					Peer.ss(message); 
 				} catch (Exception e) {
@@ -35,9 +34,9 @@ public class fakeDataGenerator  extends Thread{
 					e.printStackTrace();
 				}
            		
-           		if(flag == false ) { queue.start();queue.join(); flag = true; counter=0;}
+           		while(queue.getStatus() == false ) { Thread.sleep((int)(Math.random() * 10000));}
                                 
-                Thread.sleep((int)(Math.random() * 20000));
+                Thread.sleep((int)(Math.random() * 5000));
                
             }
             catch (InterruptedException e) {
@@ -45,11 +44,6 @@ public class fakeDataGenerator  extends Thread{
             }
         }
     }
-    
-    
-    /*public static String copydata () {
-		return message;
-   }*/
     
     
     private void generateMessage()

@@ -28,7 +28,7 @@ public class Peer {
      * @throws java.lang.Exception
      */
 	
-	
+	private static sqlConnection s;
 	private static ArrayList<String> resalt = new ArrayList<>();
    
     private static String message= "";
@@ -36,9 +36,11 @@ public class Peer {
 
     public static ServerThread serverThread ;
     public static String []setupvalues;
-    
+    public static fakeDataGenerator Gen ;
    
-    
+    public Peer(QueueingModule queue) {
+    	Gen = new fakeDataGenerator(queue);
+    }
     public void addinresalt(String string) {
 		// TODO Auto-generated method stub
     	resalt.add(string);
@@ -63,7 +65,6 @@ public class Peer {
     }
     
     public static  void updateListenToPeer( ServerThread serverThread ,String username, String port , boolean f) throws Exception {
-    	 fakeDataGenerator Gen = new fakeDataGenerator();
         ArrayList<String> reslt = new sqlConnection().getIps(getIP()+":"+port , f);
         for(int i = 0 ; i < reslt.size(); i++) {
             if(resalt.contains(reslt.get(i))) continue;
@@ -80,10 +81,14 @@ public class Peer {
             }
         }
         //System.out.println("you can now communicate (e to Exit)");
-        Gen.start();
+        
    
     }
     
+    
+    public void startCommunication() {
+    	Gen.start();
+    }
     
     public static void ss(String m) throws Exception {
     	

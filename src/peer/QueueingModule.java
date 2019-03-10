@@ -19,23 +19,26 @@ public class QueueingModule extends Thread{
 	 public QueueingModule(){}
 	   
 	 public void addToQueue(String Data)
-    {
-        q.add(Data);
-        	
-    }
-	    
+	    {
+	        q.add(Data);
+	        	
+	    }
 	 @Override
 	 public void run() {
+		 while (true)
+		 {
 		 try {
-			SaveToFile();
-		} catch (IOException e) {
+			if(q.isEmpty()) sleep(5000); 
+			else SaveToFile();
+			
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		 }
 	 }
-	    
+	  
 	    
 	    public void SaveToFile() throws IOException {
-	    	
 	    	int size = q.size();
 	    	PrintWriter pw = new PrintWriter(new FileOutputStream (new File("DB.txt"),true )); 
 	    	for(int i = 0 ; i<size ; i++) {
@@ -44,19 +47,12 @@ public class QueueingModule extends Thread{
 		    }
 	    	pw.close();
 	    }
-
-	    
-	    public void print () {
-	    	int size = q.size();
-	    	for(int i =0 ; i< size; i++) {
-	    		System.out.println(q.peek());
-	    	}
-	    }
 	    
 	    public boolean getStatus () {
-	    	if(q.size() > 30) return false;
+	    	if(q.size() > 5) return false;
 	    	
 	    	else return true;
 	    	
 	    }
+
 }
