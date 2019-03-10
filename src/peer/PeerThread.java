@@ -23,7 +23,7 @@ public class PeerThread extends Thread {
 	private QueueingModule Q = new QueueingModule();
     private BufferedReader bufferedReader;
     private String recievedData ;
-    public static ArrayList <String> cantR = new ArrayList<>();
+    static int count = 0;
     
     public PeerThread(Socket socket) throws IOException {
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -31,7 +31,8 @@ public class PeerThread extends Thread {
 
     @Override
     public void run() {
-        boolean flag = true , full  ;
+
+    	boolean flag = true , full  ;
         while (flag) {
             try {
                 JsonObject jsonObject = Json.createReader(bufferedReader).readObject();
@@ -39,7 +40,12 @@ public class PeerThread extends Thread {
                 		
                 	recievedData = "[" + jsonObject.getString("username") + "]:" + jsonObject.getString("message");
                 	Q.addToQueue(recievedData);
+                	full = Q.getStatus();
                 	System.out.println(recievedData);
+                	
+                	while (Q.getStatus() == false ) {
+                		sleep(5000);
+                    }
                 }
                 
             } catch (Exception e) {
